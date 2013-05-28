@@ -9,42 +9,6 @@ var optimist = require('optimist');
 
 function maybe(err) { if (err) console.error(err); }
 
-function add_pkg_count() {
-  // Error: You are not a db or server admin.
-  var downloads = nano.use('downloads');
-  downloads.insert({
-    _rev: '5-26cb7e3e9a02fe31ebaee05238727155',
-    language: 'javascript',
-    views: {
-      "broken": {
-        "map": "function (doc) {\n  if (typeof doc.count !== 'number')\n    emit(doc._id, doc._id)\n}"
-      },
-      "pkg": {
-        "map": "function (doc) {\n  if (typeof doc.count === 'number')\n    emit([doc.pkg, doc.day], doc.count)\n}",
-        "reduce": "_sum"
-      },
-      "day": {
-        "map": "function (doc) {\n  if (typeof doc.count === 'number')\n    emit([doc.day, doc.pkg], doc.count)\n}",
-        "reduce": "_sum"
-      },
-      "count": {
-        "map": "function (doc) {\n  if (typeof doc.count === 'number')\n    emit([doc.count, doc.pkg, doc.day], doc.count)\n}",
-        "reduce": "_sum"
-      },
-      "pkg_count": {
-        "map": "function (doc) {\n  if (typeof doc.count === 'number')\n    emit(doc.pkg, doc._id)\n}",
-        "reduce": "_count"
-      }
-    }
-  }, '_design/app', function (error, response) {
-    console.log('inserted "count" view', error, response);
-  });
-  // alternatively, try to run it at the command line:
-  // http -jv isaacs.iriscouch.com:5984/downloads/_temp_view \
-  //   map="function (doc) {  if (typeof doc.count === 'number')    emit(doc.pkg, doc._id)}" \
-  //   reduce="_count"
-  // same error, dammit.
-}
 
 function refresh() {
   var client = redis.createClient();
@@ -73,9 +37,29 @@ function refresh() {
   nano.use('downloads').view('app', 'pkg', {group_level: 1}).pipe(json_parser);
 }
 
-function search(argv) {
+function addDownloads(pkgs, callback) {
+  // add download data to each package in pkgs.
+  // callback signature: function(err, pkgs)
   var client = redis.createClient();
+  console.log('Found ' + pkgs.length + ' pkgs.');
+  async.map(pkgs, function(pkg, callback) {
+    var cache_key = 'npmjs:' + pkg.name + '/downloads';
+    client.get(cache_key, function(err, count) {
+      if (err || count === null) {
+        callback(err || 'cache miss');
+      }
+      else {
+        pkg.downloads = count;
+        callback(null, pkg);
+      }
+    });
+  }, function(err, pkgs) {
+    client.quit();
+    callback(err, pkgs);
+  });
+}
 
+function search(argv) {
   // npm.commands.search(searchTerms, [silent,] [staleness,] callback)
   npm.load(argv, function(err) {
     maybe(err);
@@ -95,21 +79,18 @@ function search(argv) {
       //   },
       //   ...
       // }
-      var names = Object.keys(packages);
-      console.log('Found ' + names.length + ' packages.');
-      async.map(names, function(name, callback) {
-        var cache_key = 'npmjs:' + name + '/downloads';
-        client.get(cache_key, function(err, count) {
-          maybe(err);
-          packages[name].downloads = count || -1;
-          callback(err, packages[name]);
-        });
-      }, function(err, packages) {
-        maybe(err);
-        packages.forEach(function(pkg) {
-          console.log(JSON.stringify(pkg));
-        });
-        client.quit();
+      // drop the redundant keys:
+      // package is a reserved word. we'll go with pkgs
+      var pkgs = Object.keys(packages).map(function(key) { return packages[key]; });
+      addDownloads(pkgs, function(err, pkgs) {
+        if (err) {
+          console.error(err);
+        }
+        else {
+          pkgs.forEach(function(pkg) {
+            console.log(JSON.stringify(pkg));
+          });
+        }
       });
     });
   });
