@@ -3,6 +3,7 @@
 var JSONStream = require('JSONStream');
 var redis = require('redis');
 var async = require('async');
+var _ = require('underscore');
 var npm = require('npm');
 var nano = require('nano')('http://isaacs.iriscouch.com:5984');
 var optimist = require('optimist');
@@ -10,9 +11,11 @@ var optimist = require('optimist');
 function maybe(err) { if (err) console.error(err); }
 
 
-function refresh() {
+function fillCache(callback) {
   var client = redis.createClient();
 
+  console.info('Updating cache of download counts.');
+  console.info('This can take a couple of minutes.');
   var ttl = 60*60*24; // 1 day in seconds
   var json_parser = JSONStream.parse('rows.*');
   json_parser.on('data', function(data) {
@@ -21,15 +24,17 @@ function refresh() {
     // if group_level = 2:
     //   data = { key: [ 'amulet', '2012-07-24' ], value: 9 }
     var cache_key = 'npmjs:' + data.key[0] + '/downloads';
-    console.log('SETEX ' + cache_key + ' ' + ttl + ' ' + data.value);
+    // console.log('SETEX ' + cache_key + ' ' + ttl + ' ' + data.value);
     client.setex(cache_key, ttl, data.value, maybe);
   });
   json_parser.on('root', function(root, count) {
     // root will be {rows: new Array(count)}
     // console.log('root', root, 'count', count);
     // apparently you have to quit the client before Node.js will exit.
-    console.log('Updated ' + count + ' download counts.');
+    console.info('Updated ' + count + ' download counts.');
     client.quit();
+    // hopefully redis is done.
+    if (callback) callback();
   });
 
   // the view 'app/pkg' with group_level=1 returns: {rows: [..., {key: ['amulet'], value: 380}, ...]}
@@ -45,21 +50,31 @@ function addDownloads(pkgs, callback) {
   async.map(pkgs, function(pkg, callback) {
     var cache_key = 'npmjs:' + pkg.name + '/downloads';
     client.get(cache_key, function(err, count) {
-      if (err || count === null) {
-        callback(err || 'cache miss');
+      if (err) {
+        callback(err);
       }
       else {
-        pkg.downloads = count;
+        pkg.downloads = count || 0;
         callback(null, pkg);
       }
     });
   }, function(err, pkgs) {
     client.quit();
-    callback(err, pkgs);
+    if (err)
+      return callback(err);
+    var pkgs_downloads = _.pluck(pkgs, 'downloads');
+    var sum = _.reduce(pkgs_downloads, function(memo, num) { return memo + num; }, 0);
+    if ((sum / pkgs.length) < 1) {
+      callback('Cache missing. Total downloads = ' + sum);
+    }
+    else {
+      callback(err, pkgs);
+    }
   });
 }
 
-function search(argv) {
+function search(argv, callback) {
+  // callback signature: function(err, pkgs)
   // npm.commands.search(searchTerms, [silent,] [staleness,] callback)
   npm.load(argv, function(err) {
     maybe(err);
@@ -79,17 +94,18 @@ function search(argv) {
       //   },
       //   ...
       // }
-      // drop the redundant keys:
-      // package is a reserved word. we'll go with pkgs
+      // drop the redundant keys. and since package is a reserved word. we'll go with pkgs
       var pkgs = Object.keys(packages).map(function(key) { return packages[key]; });
-      addDownloads(pkgs, function(err, pkgs) {
+      addDownloads(pkgs, function(err, pkgs_with_downloads) {
         if (err) {
           console.error(err);
+          // try to fill the cache once. (don't try twice.)
+          fillCache(function() {
+            addDownloads(pkgs, callback);
+          });
         }
         else {
-          pkgs.forEach(function(pkg) {
-            console.log(JSON.stringify(pkg));
-          });
+          callback(null, pkgs_with_downloads);
         }
       });
     });
@@ -97,6 +113,39 @@ function search(argv) {
 }
 
 if (require.main === module) {
-  var argv = optimist.default({loglevel: 'warn'}).argv;
-  search(argv);
+  var argv = optimist.default({loglevel: 'warn', sort: 'downloads'}).argv;
+  search(argv, function(err, pkgs) {
+    maybe(err);
+
+    if (argv.json) {
+      pkgs.forEach(function(pkg) {
+        console.log(JSON.stringify(pkg));
+      });
+    }
+    else {
+      pkgs.forEach(function(pkg) {
+        // console.log('pkg-', pkg);
+        // parseInt(10)
+        pkg.downloads = pkg.downloads.toString();
+        pkg.author = pkg.maintainers.join(' ');
+        pkg.date = pkg.time.slice(0, 10);
+        pkg.keywords = pkg.keywords.join(' ');
+      });
+      var tabulate = require('./tabulate');
+      var output = tabulate(pkgs, {
+        columns: [
+          ['downloads', Number, 8],
+          ['name', String, 20],
+          ['description', String, 60],
+          ['author', String, 20],
+          ['date', String, 20],
+          ['keywords', String, Infinity],
+        ],
+        terms: argv._,
+        sort: argv.sort,
+        reverse: argv.reverse,
+      });
+      console.log(output);
+    }
+  });
 }

@@ -10,6 +10,8 @@ Install:
 
     npm-search-downloads csv | json -C downloads name description | sort -g
 
+Many more comments on CouchDB (mostly notes-to-self) on the [NOTES](NOTES.md) page.
+
 ## License
 
 Copyright 2013, Christopher Brown. MIT Licensed.
