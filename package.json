@@ -1,10 +1,17 @@
 {
   "name": "npm-search-downloads",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Joins the registry and downloads databases in the npmjs registry.",
-  "keywords": ["npm", "search", "downloads", "registry"],
+  "keywords": [
+    "npm",
+    "search",
+    "downloads",
+    "registry"
+  ],
   "main": "index.js",
-  "bin": {"npm-search-downloads": "index.js"},
+  "bin": {
+    "npm-search-downloads": "index.js"
+  },
   "author": "Christopher Brown <io@henrian.com>",
   "repository": {
     "type": "git",
