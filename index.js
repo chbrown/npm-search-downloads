@@ -29,7 +29,6 @@ function fillCache(callback) {
   });
   json_parser.on('root', function(root, count) {
     // root will be {rows: new Array(count)}
-    // console.log('root', root, 'count', count);
     // apparently you have to quit the client before Node.js will exit.
     console.info('Updated ' + count + ' download counts.');
     client.quit();
@@ -124,12 +123,13 @@ if (require.main === module) {
     }
     else {
       pkgs.forEach(function(pkg) {
-        // console.log('pkg-', pkg);
         // parseInt(10)
         pkg.downloads = pkg.downloads.toString();
         pkg.author = pkg.maintainers.join(' ');
         pkg.date = pkg.time.slice(0, 10);
-        pkg.keywords = pkg.keywords.join(' ');
+        if (Array.isArray(pkg.keywords)) {
+          pkg.keywords = pkg.keywords.join(' ');
+        }
       });
       var tabulate = require('./tabulate');
       var output = tabulate(pkgs, {
