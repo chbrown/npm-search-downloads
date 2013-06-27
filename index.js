@@ -3,7 +3,6 @@
 var JSONStream = require('JSONStream');
 var redis = require('redis');
 var async = require('async');
-var _ = require('underscore');
 var npm = require('npm');
 var nano = require('nano')('http://isaacs.iriscouch.com:5984');
 var optimist = require('optimist');
@@ -61,8 +60,10 @@ function addDownloads(pkgs, callback) {
     client.quit();
     if (err)
       return callback(err);
-    var pkgs_downloads = _.pluck(pkgs, 'downloads');
-    var sum = _.reduce(pkgs_downloads, function(memo, num) { return memo + num; }, 0);
+    var sum = 0;
+    pkgs.forEach(function(pkg) {
+      sum += pkg.downloads;
+    });
     if ((sum / pkgs.length) < 1) {
       callback('Cache missing. Total downloads = ' + sum);
     }
