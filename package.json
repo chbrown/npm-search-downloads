@@ -1,6 +1,6 @@
 {
   "name": "npm-search-downloads",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Joins the registry and downloads databases in the npmjs registry.",
   "keywords": [
     "npm",
