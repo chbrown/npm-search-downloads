@@ -13,6 +13,7 @@
     "npm-search-downloads": "index.js"
   },
   "author": "Christopher Brown <io@henrian.com>",
+  "homepage": "https://github.com/chbrown/npm-search-downloads",
   "repository": {
     "type": "git",
     "url": "git://github.com/chbrown/npm-search-downloads.git"
