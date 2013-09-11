@@ -62,5 +62,10 @@ exports.initialize = function(callback) {
     callback();
   });
   // make a simple request to test the connection
-  client.info();
+  client.info(function(err, result) {
+    if (err) return err; // this case will be handled by client.on('error', ...) above
+
+    client.quit();
+    callback();
+  });
 };
