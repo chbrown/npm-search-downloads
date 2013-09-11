@@ -12,6 +12,8 @@ This is quite useful for helping the rich get richer. Also, for developing your 
 
     npm-search-downloads csv
 
+As of `v0.2.0`, does not require Redis, even though it is much faster with Redis.
+
 
 ## Development
 
