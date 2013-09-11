@@ -1,8 +1,6 @@
+'use strict'; /*jslint es5: true, node: true, indent: 2 */
 var _ = require('underscore');
-
-var colors = [31, 33, 32, 36, 34, 35];
-var cl = colors.length;
-var npm_color = true;
+var coloring = require('./coloring');
 
 function maxWidth() {
   var cols = 0;
@@ -59,16 +57,7 @@ cmp[String] = function(a, b) {
   return 0;
 };
 
-function colorizer(terms) {
-  return function(line) {
-    terms.forEach(function (term, i) {
-      line = addColorMarker(line, term, i);
-    });
-    return colorize(line).trim();
-  };
-}
-
-function prettify(objs, opts) {
+module.exports = function(objs, opts) {
   if (objs.length === 0)
     return 'No match found for "' + (opts.terms.join(' ')) + '"';
 
@@ -107,7 +96,7 @@ function prettify(objs, opts) {
     rows.reverse();
   }
 
-  var spaces = longest.map(function (n) {
+  var spaces = longest.map(function(n) {
     return new Array(n + 2).join(' ');
   });
 
@@ -124,50 +113,16 @@ function prettify(objs, opts) {
     lines.push(cells.join(' ').substr(0, cols).trim());
   }
 
-  lines = lines.map(colorizer(opts.terms));
+  lines = lines.map(function(line) {
+    return coloring.colorMatches(line, opts.terms);
+  });
 
   // build the heading padded to the longest in each field
-  var header_line = column_names.map(function (column_name, col_i) {
+  var header_line = column_names.map(function(column_name, col_i) {
     var space = Math.max(2, 3 + (longest[col_i] || 0) - column_name.length);
     return column_name + (new Array(space).join(' '));
   }).join('').substr(0, cols).trim();
   lines.unshift(header_line);
 
   return lines.join('\n');
-}
-
-function addColorMarker(str, term, i) {
-  var m = i % cl + 1;
-  var markStart = String.fromCharCode(m);
-  var markEnd = String.fromCharCode(0);
-
-  if (term.charAt(0) === '/') {
-    //term = term.replace(/\/$/, '')
-    return str.replace(new RegExp(term.substr(1, term.length - 1), 'gi'), function (bit) {
-      return markStart + bit + markEnd;
-    });
-  }
-
-  // just a normal string, do the split/map thing
-  var pieces = str.toLowerCase().split(term.toLowerCase());
-  var p = 0;
-
-  return pieces.map(function (piece, i) {
-    piece = str.substr(p, piece.length);
-    var mark = markStart + str.substr(p + piece.length, term.length) + markEnd;
-    p += piece.length + term.length;
-    return piece + mark;
-  }).join('');
-}
-
-function colorize(line) {
-  for (var i = 0; i < cl; i++) {
-    var m = i + 1;
-    var color = '\033[' + colors[i] + 'm';
-    line = line.split(String.fromCharCode(m)).join(color);
-  }
-  var uncolor = '\033[0m';
-  return line.split('\u0000').join(uncolor);
-}
-
-module.exports = prettify;
+};

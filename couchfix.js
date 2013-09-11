@@ -1,4 +1,4 @@
-'use strict'; /*jslint node: true, es5: true, indent: 2 */
+'use strict'; /*jslint es5: true, node: true, indent: 2 */
 // Error: You are not a db or server admin.
 var nano = require('nano')('http://isaacs.iriscouch.com:5984');
 
@@ -32,7 +32,7 @@ downloads.insert({
     }
   }
 }, '_design/app', function (error, response) {
-  console.log('inserted "count" view', error, response);
+  console.log('inserted "pkg_count" view', error, response);
 });
 
 // alternatively, try to run it at the command line:
