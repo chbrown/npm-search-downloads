@@ -9,7 +9,9 @@ var argv = optimist.default({
 }).argv;
 
 downloads.search(argv, function(err, pkgs) {
-  if (err) throw err;
+  if (err) {
+    return console.error('downloads.search failed:', err);
+  }
 
   if (argv.json) {
     pkgs.forEach(function(pkg) {
