@@ -1,4 +1,4 @@
-'use strict'; /*jslint es5: true, node: true, indent: 2 */ /* globals setImmediate */
+/*jslint node: true */
 var redis = require('redis');
 
 var _in_memory_store = {};
@@ -17,10 +17,7 @@ RedisStore.prototype.get = function(key, callback) {
 };
 RedisStore.prototype.set = function(key, value, callback) {
   // console.log('SETEX ' + cache_key + ' ' + ttl + ' ' + data.value);
-  return this.client.setex(key, seconds_in_a_day, value, function(err) {
-    if (err) console.error('RedisStore.set: SETEX error: %s', err);
-    callback(err);
-  });
+  return this.client.setex(key, seconds_in_a_day, value, callback);
 };
 
 

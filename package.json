@@ -25,6 +25,7 @@
     "npm": "*",
     "optimist": "*",
     "redis": "*",
+    "request": "*",
     "underscore": "*"
   }
 }

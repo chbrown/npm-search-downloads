@@ -1,8 +1,11 @@
 # npm-search-downloads
 
-This tool primarily replicates `npm search` but also joins the `registry` and `downloads` databases in the [npmjs.org](http://npmjs.org) registry to provide total download counts.
+Layer on top of `npm search` that joins download counts (over last month) with packages.
 
-This is quite useful for helping the rich get richer. Also, for developing your Node.js app faster, because you'll spend less time trying to evaluate, from a list of `npm search some_api` results, which are well documented, functional, etc.
+**v0.3.0**: Fixed to use the npmjs.org download count [API](https://api.npmjs.org) instead of the CouchDB database that was removed in February 2014.
+
+This is useful for helping the rich get richer. Also, for developing your Node.js app faster, because you'll spend less time trying to evaluate, from a list of `npm search some_api` results, which are well documented, functional, etc.
+
 
 **Install:**
 
@@ -10,15 +13,10 @@ This is quite useful for helping the rich get richer. Also, for developing your 
 
 **Example search:**
 
-    npm-search-downloads csv
-
-As of `v0.2.0`, does not require Redis, even though it is much faster with Redis.
+    npm-search-downloads xml --sort downloads
 
 
-## Development
-
-* [NOTES.md](NOTES.md): A quick intro to the structure of the npm CouchDB database (`isaacs.iriscouch.com`).
-  These are mostly notes-to-self, but potentially useful to others hacking on or extending `npm` functionality.
+As of `v0.2.0`, does not require Redis, though it is much faster with Redis.
 
 
 ## License

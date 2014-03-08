@@ -1,11 +1,11 @@
-'use strict'; /*jslint es5: true, node: true, indent: 2 */
+/*jslint node: true */
 var _ = require('underscore');
 var coloring = require('./coloring');
 
 function maxWidth() {
   var cols = 0;
   try {
-    var tty = require("tty");
+    var tty = require('tty');
     if (tty.isatty(process.stdout.fd)) {
       if (process.stdout._handle) {
         cols = process.stdout._handle.getWindowSize()[0];
@@ -114,7 +114,7 @@ module.exports = function(objs, opts) {
   }
 
   lines = lines.map(function(line) {
-    return coloring.colorMatches(line, opts.terms);
+    return coloring.colorTerms(line, opts.terms);
   });
 
   // build the heading padded to the longest in each field

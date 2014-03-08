@@ -1,17 +1,15 @@
-/*jslint es5: true, node: true, indent: 2 */
-var coloring = require('./coloring');
-
+/*jslint node: true */
 var colors = [31, 33, 32, 36, 34, 35];
 var cl = colors.length;
 
-function expandColorMarkers(line) {
+function expandColorMarkers(str) {
   for (var i = 0; i < cl; i++) {
     var m = i + 1;
     var color = '\033[' + colors[i] + 'm';
-    line = line.split(String.fromCharCode(m)).join(color);
+    str = str.split(String.fromCharCode(m)).join(color);
   }
   var uncolor = '\033[0m';
-  return line.split('\u0000').join(uncolor);
+  return str.split('\u0000').join(uncolor);
 }
 
 function addColorMarker(str, term, i) {
@@ -38,9 +36,9 @@ function addColorMarker(str, term, i) {
   }).join('');
 }
 
-exports.colorMatches = function(line, terms) {
+exports.colorTerms = function(str, terms) {
   terms.forEach(function(term, i) {
-    line = addColorMarker(line, term, i);
+    str = addColorMarker(str, term, i);
   });
-  return expandColorMarkers(line).trim();
+  return expandColorMarkers(str).trim();
 };
