@@ -36,6 +36,7 @@ var lookup = function(name, store, callback) {
 };
 
 exports.addMetadata = function(packages, callback) {
+  // look up at most 20 download counts at the same time
   var limit = 20;
 
   stores.initialize(function(err) {

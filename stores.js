@@ -4,6 +4,7 @@ var redis = require('redis');
 var _in_memory_store = {};
 var seconds_in_a_day = 24*60*60;
 
+var noop = function() {};
 
 // redis, when it's available
 var RedisStore = function() {
@@ -28,14 +29,16 @@ MemoryStore.prototype.close = function() {
   // do nothing
 };
 MemoryStore.prototype.get = function(key, callback) {
+  if (callback === undefined) callback = noop;
   return setImmediate(function() {
-    return callback(null, _in_memory_store[key]);
+    callback(null, _in_memory_store[key]);
   });
 };
 MemoryStore.prototype.set = function(key, value, callback) {
+  if (callback === undefined) callback = noop;
   return setImmediate(function() {
     _in_memory_store[key] = value;
-    return callback(null);
+    callback(null);
   });
 };
 

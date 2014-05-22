@@ -21,7 +21,6 @@
     "async": "*",
     "hiredis": "*",
     "JSONStream": "*",
-    "nano": "*",
     "npm": "*",
     "optimist": "*",
     "redis": "*",

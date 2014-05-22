@@ -56,7 +56,7 @@ module.exports = function(argv, callback) {
         }
       });
 
-      console.info('Matched %d/%d packages', packages.length, all_packages.length);
+      console.info('Matched %d / %d packages', packages.length, all_packages.length);
 
       downloads.addMetadata(packages, callback);
       // github.addMetadata(packages, callback);
