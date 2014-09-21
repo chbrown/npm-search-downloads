@@ -7,12 +7,7 @@ function maxWidth() {
   try {
     var tty = require('tty');
     if (tty.isatty(process.stdout.fd)) {
-      if (process.stdout._handle) {
-        cols = process.stdout._handle.getWindowSize()[0];
-      }
-      else {
-        cols = process.stdout.getWindowSize()[0];
-      }
+      cols = process.stdout.getWindowSize()[0];
     }
   } catch (ex) {}
   return cols || Infinity;
@@ -80,7 +75,7 @@ module.exports = function(objs, opts) {
       if (len > longest[col_i]) {
         row._undent[col_i] = len - longest[col_i];
       }
-      row[col_i] = cell.replace(/\s+/g, ' ');
+      row[col_i] = cell.toString().replace(/\s+/g, ' ');
     }
     rows.push(row);
   }
