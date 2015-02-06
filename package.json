@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "async": "*",
-    "hiredis": "*",
     "JSONStream": "*",
     "npm": "*",
     "optimist": "*",

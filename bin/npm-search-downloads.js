@@ -24,35 +24,6 @@ commands.search(argv, function(err, pkgs) {
   }
   else {
     pkgs.forEach(function(pkg) {
-
-      /* example raw registry item:
-         { name: 'wd-capture',
-           description: 'Capture some data from a page via wd.',
-           'dist-tags': { latest: '0.0.1' },
-           maintainers: [ [Object] ],
-           readmeFilename: 'README.md',
-           keywords: [ 'wd' ],
-           author: { name: 'joshwnj' },
-           license: 'MIT',
-           time: { modified: '2014-03-06T01:43:57.694Z' },
-           versions: { '0.0.1': 'latest' } },
-      */
-
-      // packages = {
-      //   ...,
-      //   csv: {
-      //     name: 'csv',
-      //     description: 'CSV parser with simple api, full of options and tested against large datasets.',
-      //     maintainers: [Object],
-      //     url: null,
-      //     keywords: [Object],
-      //     version: '0.0.2',
-      //     time: '2013-04-10 21:59',
-      //     words: 'csv csv parser with simple api... large datasets. =david node parser csv'
-      //   },
-      //   ...
-      // }
-
       ['downloads', 'stars', 'watchers'].forEach(function(key) {
         pkg[key] = (pkg[key] !== undefined && pkg[key] !== null) ? pkg[key].toString() : '';
       });

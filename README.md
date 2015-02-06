@@ -21,4 +21,4 @@ As of `v0.2.0`, does not require Redis, though it is much faster with Redis.
 
 ## License
 
-Copyright © 2013 Christopher Brown. [MIT Licensed](LICENSE).
+Copyright 2013-2014 Christopher Brown. [MIT Licensed](http://opensource.org/licenses/MIT).
