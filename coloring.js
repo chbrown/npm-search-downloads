@@ -1,4 +1,3 @@
-/*jslint node: true */
 var colors = [31, 33, 32, 36, 34, 35];
 var cl = colors.length;
 

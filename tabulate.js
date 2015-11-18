@@ -1,4 +1,3 @@
-/*jslint node: true */
 var _ = require('underscore');
 var coloring = require('./coloring');
 

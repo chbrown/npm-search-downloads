@@ -1,4 +1,3 @@
-/*jslint node: true */
 var redis = require('redis');
 
 var _in_memory_store = {};

@@ -1,4 +1,3 @@
-/*jslint node: true */
 var async = require('async');
 var request = require('request');
 
