@@ -6,4 +6,4 @@ Use [`npm-search-server`](https://github.com/chbrown/npm-search-server) and [`np
 
 ## License
 
-Copyright 2013-2014 Christopher Brown. [MIT Licensed](http://opensource.org/licenses/MIT).
+Copyright 2013-2014 Christopher Brown. [MIT Licensed](http://chbrown.github.io/licenses/MIT/#2013-2014).
